@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phishy? Vibe-check a link before you click</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M6 32 L2 16 Q12 32 2 48 Z' fill='rgb(255,106,61)' stroke='rgb(11,59,71)' stroke-width='3' stroke-linejoin='round'/%3E%3Cellipse cx='36' cy='32' rx='24' ry='17' fill='rgb(255,106,61)' stroke='rgb(11,59,71)' stroke-width='3'/%3E%3Ccircle cx='47' cy='28' r='4' fill='white' stroke='rgb(11,59,71)' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;700&family=Shrikhand&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<main>
+  <div class="sky">
+    <div class="wrap">
+      <p class="brand">
+        <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
+          <path d="M8 32 L3 15 Q14 32 3 49 Z" fill="#FF6A3D" stroke="#0B3B47" stroke-width="3.5" stroke-linejoin="round"/>
+          <ellipse cx="37" cy="32" rx="24" ry="17" fill="#FF6A3D" stroke="#0B3B47" stroke-width="3.5"/>
+          <circle cx="48" cy="28" r="4.5" fill="#fff" stroke="#0B3B47" stroke-width="2.5"/>
+        </svg>
+        <span>phishy</span>
+      </p>
+
+      <h1>Is this link phishy?</h1>
+      <p class="lede">Paste a link, or a whole message from an email or text. We read the wording, sniff the address first, and only dive into the page when the address is too murky to call.</p>
+
+      <form id="check" novalidate>
+        <div class="tabs" role="tablist" aria-label="What do you want to check?">
+          <button type="button" role="tab" id="tab-link" class="tab" aria-selected="true" aria-controls="panel-link">A link</button>
+          <button type="button" role="tab" id="tab-message" class="tab" aria-selected="false" aria-controls="panel-message" tabindex="-1">A message</button>
+        </div>
+
+        <div id="panel-link" role="tabpanel" aria-labelledby="tab-link">
+          <label for="url">Paste the link</label>
+          <div class="row">
+            <input id="url" name="url" type="text" inputmode="url" autocomplete="off" autocapitalize="off"
+                   spellcheck="false" placeholder="https://" maxlength="2048">
+            <button type="submit" class="primary go">Vibe-check it</button>
+          </div>
+        </div>
+
+        <div id="panel-message" role="tabpanel" aria-labelledby="tab-message" hidden>
+          <label for="msg">Paste the message</label>
+          <textarea id="msg" name="msg" rows="5" maxlength="5000" spellcheck="false"
+                    placeholder="Paste the email or text message here. We open up to three links inside it."></textarea>
+          <div class="pair">
+            <div>
+              <label for="sender">Who it says it's from (optional)</label>
+              <input id="sender" name="sender" type="text" autocomplete="off" spellcheck="false" maxlength="320"
+                     placeholder="Name &lt;address@example.com&gt;">
+            </div>
+            <div>
+              <label for="subject">Subject (optional)</label>
+              <input id="subject" name="subject" type="text" autocomplete="off" maxlength="300">
+            </div>
+          </div>
+          <button type="submit" class="primary go stack">Vibe-check it</button>
+        </div>
+
+        <label class="opt" for="full">
+          <input type="checkbox" id="full">
+          <span>Always dive into the page, even when the address says it all</span>
+        </label>
+        <p id="error" class="error" role="alert" hidden></p>
+      </form>
+    </div>
+    <svg class="wave" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 30 C120 0 240 60 360 30 S600 0 720 30 S960 60 1080 30 S1320 0 1440 30 V60 H0 Z"/>
+    </svg>
+  </div>
+
+  <div class="water">
+    <div class="wrap">
+      <section id="empty" class="empty">
+        <h2>Nothing to sniff yet.</h2>
+        <p>Nothing to paste? Try one of these.</p>
+        <div class="chips">
+          <button type="button" class="ghost" data-target="url" data-fill="http://paypal-secure-login.verify-account.xyz/signin">A sketchy link</button>
+          <button type="button" class="ghost" data-target="url" data-fill="https://github.com/openai">A clean link</button>
+          <button type="button" class="ghost" data-target="msg" data-fill="Dear customer, your SBI account has been suspended. Verify your KYC immediately: http://sbi-kyc-update.github.io/verify">A scammy message</button>
+        </div>
+      </section>
+
+      <section id="result" aria-label="Result" hidden></section>
+
+      <p class="fine">Research prototype. A clean result is a good sign, not a guarantee, so stay careful with passwords and payments.</p>
+    </div>
+  </div>
+</main>
+<script src="/static/app.js" defer></script>
+</body>
+</html>
