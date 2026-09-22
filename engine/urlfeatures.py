@@ -1,25 +1,25 @@
 """Stage 1 features: everything that can be learned from the address string alone.
-
+ 
 Pure functions, no network access. That is what makes Stage 1 cheap enough to run
 on every link.
 """
 from __future__ import annotations
-
+ 
 import ipaddress
 import math
 import re
 from dataclasses import dataclass
 from urllib.parse import urlsplit
-
+ 
 from .brands import BRANDS, brands_in
-
+ 
 try:  # optional: accurate public-suffix handling from the bundled snapshot (no network)
     import tldextract
-
-    _EXTRACT = tldextract.TLDExtract(suffix_list_urls=(), include_psl_private_domains=True)
+ 
+    _EXTRACT = tldextract.TLDExtract(suffix_list_urls=(), include_psl_private_domains=True, cache_dir=None)
 except Exception:  # pragma: no cover - fallback path is tested instead
     _EXTRACT = None
-
+ 
 _TWO_LABEL_SUFFIXES = {
     "co.uk", "org.uk", "ac.uk", "gov.uk", "co.in", "ac.in", "gov.in", "org.in", "net.in",
     "nic.in", "edu.in", "res.in", "co.jp", "com.au", "net.au", "org.au", "co.nz", "co.za",
@@ -36,7 +36,7 @@ FREE_HOSTING = {
     "ngrok-free.app", "trycloudflare.com",
 }
 _SUFFIXES2 = _TWO_LABEL_SUFFIXES | FREE_HOSTING
-
+ 
 SHORTENERS = {
     "bit.ly", "tinyurl.com", "t.co", "goo.gl", "is.gd", "ow.ly", "cutt.ly", "rebrand.ly",
     "buff.ly", "shorturl.at", "rb.gy", "tiny.cc",
@@ -51,10 +51,10 @@ SENSITIVE_WORDS = (
     "banking", "wallet", "otp", "password", "suspend", "unlock", "billing", "payment",
     "invoice", "refund", "kyc", "validate", "authenticate", "recover",
 )
-
+ 
 _NUMERIC_HOST = re.compile(r"^(0x[0-9a-f]+|\d{8,10})$", re.I)
-
-
+ 
+ 
 def is_ip_host(host: str) -> bool:
     h = host.strip("[]")
     try:
@@ -62,8 +62,8 @@ def is_ip_host(host: str) -> bool:
         return True
     except ValueError:
         return bool(_NUMERIC_HOST.match(h))
-
-
+ 
+ 
 def split_host(host: str) -> tuple[str, str, str]:
     """Return (subdomain, registered_domain, suffix)."""
     host = host.lower().strip(".")
@@ -85,8 +85,8 @@ def split_host(host: str) -> tuple[str, str, str]:
         ".".join(labels[-(n + 1):]),
         ".".join(labels[-n:]),
     )
-
-
+ 
+ 
 @dataclass(frozen=True)
 class ParsedURL:
     url: str  # normalised, always has a scheme
@@ -99,8 +99,8 @@ class ParsedURL:
     subdomain: str
     reg_domain: str
     suffix: str
-
-
+ 
+ 
 def parse_url(url: str) -> ParsedURL:
     """Parse a user-supplied link. Raises ValueError if it cannot be a URL."""
     url = url.strip()
@@ -127,8 +127,8 @@ def parse_url(url: str) -> ParsedURL:
         reg_domain=reg,
         suffix=suffix,
     )
-
-
+ 
+ 
 def _entropy(s: str) -> float:
     if not s:
         return 0.0
@@ -137,8 +137,8 @@ def _entropy(s: str) -> float:
         counts[ch] = counts.get(ch, 0) + 1
     n = len(s)
     return -sum(c / n * math.log2(c / n) for c in counts.values())
-
-
+ 
+ 
 def brand_findings(p: ParsedURL) -> dict[str, list[str]]:
     """Brands named in the address although the registered domain is not theirs."""
     if p.suffix and p.reg_domain.endswith("." + p.suffix):
@@ -155,8 +155,8 @@ def brand_findings(p: ParsedURL) -> dict[str, list[str]]:
             if p.reg_domain not in BRANDS[brand]:
                 out[key].append(brand)
     return out
-
-
+ 
+ 
 FEATURE_NAMES = [
     "url_len", "host_len", "path_len", "query_len", "reg_domain_len", "longest_label_len",
     "n_dots_host", "n_subdomains", "n_hyphens_host", "n_digits_host", "digit_ratio_host",
@@ -166,8 +166,8 @@ FEATURE_NAMES = [
     "n_sensitive_words", "brand_in_domain_mismatch", "brand_in_subdomain_mismatch",
     "brand_in_path_mismatch",
 ]
-
-
+ 
+ 
 def extract_features(url: str) -> dict[str, float]:
     p = parse_url(url)
     host = p.host
@@ -208,8 +208,9 @@ def extract_features(url: str) -> dict[str, float]:
         "brand_in_path_mismatch": bool(brands["path"]),
     }
     return {k: float(v) for k, v in f.items()}
-
-
+ 
+ 
 def feature_vector(url: str) -> list[float]:
     f = extract_features(url)
     return [f[name] for name in FEATURE_NAMES]
+ 
