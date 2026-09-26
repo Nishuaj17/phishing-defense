@@ -4,7 +4,7 @@
 // textContent / element creation only, never innerHTML. On-demand only — this extension never
 // watches or logs the pages you browse; it checks a page only when you click the button.
 
-const DEFAULT_API = "http://127.0.0.1:8000";
+const DEFAULT_API = "https://phishing-defense-h161.onrender.com";
 
 const els = {
   tabUrl: document.getElementById("tabUrl"),
