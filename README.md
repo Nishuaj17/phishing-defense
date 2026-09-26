@@ -20,7 +20,7 @@ Cascade with measurable escalation rate and threshold sweep	built
 Text/message analysis: wording, sender checks, link extraction, text-vs-link consistency	built, rule-based, not trained
 Fusion of URL + page + text, with missing-modality handling	built; default weights are priors, learned fusion is fitted with experiments/fit_fusion.py
 Calibration diagnostics (Brier, ECE, reliability bins)	built; the UI shows a probability only when the fusion was fitted
-Threat intelligence	built as a policy layer + local blocklist provider; no live feed included
+Threat intelligence	built as a policy layer + local blocklist provider + a live feed (URLhaus)
 Evidence-based explanation	built (feature-level; not full XAI)
 Prevention: allow / warn / block advice, unverified state	built; the web app cannot enforce (enforcement: advisory)
 Response: guided steps, incident record for every block, indicators of compromise	built (advice and records; nothing is automated)
@@ -41,10 +41,10 @@ Version	Adds	State
 0.2	Text modality, message analysis, learned fusion, calibration, threat-intel seam, response and feedback	this release
 0.3	Real dataset, trained URL and page models, first real evaluation	next, needs your data
 0.4	Screenshot modality in an isolated fetch worker	after 0.3 shows where URL+HTML fails
-0.5	Live threat-intel providers, evaluated only on post-snapshot URLs	
+0.5	Live threat-intel providers done (URLhaus); evaluate only on post-snapshot URLs
 0.6	Async jobs, PostgreSQL, Redis, auth	before a public deployment with several workers
-0.7	Browser extension (enforcement)	
-1.0	Production deployment and full experiment set	
+0.7	Browser extension (enforcement)
+1.0	Production deployment and full experiment set
 Each step must produce a number in the experiment table below, or it does not earn its place.
 
 Target experiment (same held-out test set for every row): rule-based, URL only, page only, text only, URL+page, URL+page+text, +visual, +threat intel; measured by PR-AUC, TPR at low FPR, precision, recall, latency, escalation rate, calibration, and behaviour with a missing modality.
@@ -112,9 +112,19 @@ Admin endpoints return 404 unless PHISHDEF_ADMIN_TOKEN is set, and then require 
 
 Configuration (environment): PHISHDEF_URL_MODEL, PHISHDEF_FUSION, PHISHDEF_TI_LIST (a text file of domains/URLs), PHISHDEF_DB, PHISHDEF_T_LOW, PHISHDEF_T_HIGH, PHISHDEF_RATE_PER_MIN, PHISHDEF_RATE_BURST, PHISHDEF_TRUST_PROXY (1 only behind a proxy you control), PHISHDEF_STORE_URLS (0 keeps only host names), PHISHDEF_ADMIN_TOKEN.
 
+Threat intelligence: live feed (URLhaus)
+engine/threatintel.py's LocalBlocklist reads a plain file of domains/URLs. URLhaus (abuse.ch) publishes exactly that format for free, no key required: a list of currently active malicious URLs. scripts/refresh_threatintel.py downloads it into that file.
+
+bash
+python -m scripts.refresh_threatintel --out data/threatintel/urlhaus.txt
+PHISHDEF_TI_LIST=data/threatintel/urlhaus.txt uvicorn app.main:app
+Run the refresh periodically (daily is enough - add it next to scripts/daily_collect.sh in a cron job, or just re-run it by hand before each work session). It never runs during a request: lookups are a plain file read, kept fast on purpose. A failed or empty-looking download leaves the existing file untouched and exits non-zero, so a bad refresh can never silently disable protection.
+
+This is a policy layer, not an ML feature (see the design rules in engine/threatintel.py): a hit sets a risk floor and skips opening the page, but never feeds into the URL/page models or experiments/evaluate.py, since your dataset's labels may come from a similar feed and using it as both label source and detection signal would be circular.
+
 The defense lifecycle
 Stage	What happens here	What is deliberately not claimed
-Detect / assess	cascade, text, fusion, evidence	
+Detect / assess	cascade, text, fusion, evidence
 Prevent	allow / warn / block advice, unverified state	The web app cannot block anything; an extension or gateway must enforce
 Respond	incident record for every block; indicators (domain, URL, form-action domain, sender domain); guided steps	No automatic takedown or reporting
 Recover	"Already tapped it?" checklist: reset passwords, revoke sessions, MFA, call the bank	The app cannot reset or revoke anything itself
@@ -132,5 +142,4 @@ Status: what has and hasn't been verified
 Verified in development: 86 unit tests pass (URL and page analysis, text analysis, message cascade, threat-intel policy, fusion fitting and the fit/test split, calibration plumbing, incidents and feedback, SSRF guard against a local test server including redirect-to-metadata-address, training, evaluation, store, rate limiter); the frontend was driven in headless Chromium at desktop and phone widths (both tabs, keyboard tab switching, feedback); the API handlers ran end to end against stand-ins for FastAPI.
 
 Not verified: how the frontend looks with its real fonts (my preview had no internet), running under real FastAPI/uvicorn, the Docker build, live fetching of real websites, and anything on real phishing data. Expect small fixes on first run. Heuristic weights, fusion priors and the default thresholds are priors, not fitted values.
-
 

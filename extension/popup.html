@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Phishy</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <span class="brand">🐟 phishy</span>
+    <button id="gear" type="button" aria-label="Settings" aria-expanded="false">⚙</button>
+  </header>
+
+  <div id="settings" hidden>
+    <label for="apiBase">API address</label>
+    <div class="row">
+      <input id="apiBase" type="text" spellcheck="false" placeholder="http://127.0.0.1:8000">
+      <button id="saveApi" type="button">Save</button>
+    </div>
+    <p class="hint">Point this at your deployed app once it's online. Changing it only works if the extension has permission for that address (see the README).</p>
+  </div>
+
+  <main>
+    <p class="url" id="tabUrl">Loading current tab…</p>
+    <button id="check" class="primary" type="button">Check this page</button>
+    <p id="error" class="error" role="alert" hidden></p>
+    <div id="result" hidden></div>
+  </main>
+
+  <footer>
+    <span>Research prototype. A clean result isn't a guarantee.</span>
+  </footer>
+  <script src="popup.js"></script>
+</body>
+</html>

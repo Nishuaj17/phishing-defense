@@ -7,3 +7,9 @@ models/*.joblib
 models/*.metrics.json
 results/
 .env
+
+# Local/generated phishing data
+data/.day
+data/seen_urls.txt
+data/threatintel/
+feeds/
