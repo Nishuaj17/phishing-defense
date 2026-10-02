@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phishy Warning</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .card {
+      background: white;
+      width: 90%;
+      max-width: 600px;
+      padding: 35px;
+      border-radius: 14px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.12);
+      text-align: center;
+    }
+
+    .icon {
+      font-size: 55px;
+    }
+
+    h1 {
+      color: #c62828;
+      margin-bottom: 10px;
+    }
+
+    .url {
+      background: #f1f1f1;
+      padding: 12px;
+      border-radius: 8px;
+      word-break: break-all;
+      font-size: 14px;
+      margin: 20px 0;
+    }
+
+    .risk {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 15px 0;
+    }
+
+    .source {
+      color: #555;
+      margin-bottom: 25px;
+    }
+
+    button {
+      border: none;
+      padding: 12px 20px;
+      border-radius: 7px;
+      font-size: 15px;
+      cursor: pointer;
+      margin: 5px;
+    }
+
+    .back {
+      background: #333;
+      color: white;
+    }
+
+    .proceed {
+      background: #ddd;
+      color: #333;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+
+    <div class="icon">⚠️</div>
+
+    <h1>Phishing Risk Detected</h1>
+
+    <p>
+      Phishy has identified this link as potentially malicious.
+      The original page has been stopped for your protection.
+    </p>
+
+    <div class="risk">
+      Risk Score: <span id="risk">Loading...</span>/100
+    </div>
+
+    <div class="source" id="source">
+      Loading analysis...
+    </div>
+
+    <div class="url" id="url">
+      Loading URL...
+    </div>
+
+    <button class="back" id="back">
+      Go Back
+    </button>
+
+    <button class="proceed" id="proceed">
+      Proceed Anyway
+    </button>
+
+  </div>
+
+  <script src="warning.js"></script>
+
+
+</body>
+</html>

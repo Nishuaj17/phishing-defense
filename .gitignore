@@ -13,3 +13,9 @@ data/.day
 data/seen_urls.txt
 data/threatintel/
 feeds/
+
+# Gmail OAuth credentials
+credentials.json
+data/gmail_reports.json
+data/gmail_processed.json
+token.json
