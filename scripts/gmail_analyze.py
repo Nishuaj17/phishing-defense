@@ -230,6 +230,7 @@ def print_report(report):
     print("\n" + "=" * 70)
 
 
+
 def get_latest_messages(service, max_results=10):
     response = (
         service.users()
@@ -237,11 +238,13 @@ def get_latest_messages(service, max_results=10):
         .list(
             userId="me",
             maxResults=max_results,
+            q="in:inbox OR in:spam",
         )
         .execute()
     )
 
     return response.get("messages", [])
+
 
 import json
 

@@ -19,3 +19,27 @@ credentials.json
 data/gmail_reports.json
 data/gmail_processed.json
 token.json
+
+# Secrets and local credentials
+credentials.json
+token.json
+.env
+.env.*
+!.env.example
+
+# Python environment and generated files
+.venv/
+__pycache__/
+*.py[cod]
+
+# macOS
+.DS_Store
+
+# Local secrets and OAuth backups
+token.json*
+credentials.json
+.env.*
+!.env.example
+
+# Python virtual environment
+.venv/
